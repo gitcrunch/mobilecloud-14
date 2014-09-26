@@ -16,13 +16,21 @@ import com.google.common.base.Objects;
  * 
  * @author mitchell
  */
+@Entity
 public class Video {
 
+	@Id
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
 	private String name;
 	private String url;
-	private long duration;
+	
+	@ElementCollection
+	private Set<long> duration = new ArraySet<long>();
+	
+	
+	//private long duration;
 	private long likes;
 	
 	public Video() {
@@ -52,13 +60,21 @@ public class Video {
 		this.url = url;
 	}
 
-	public long getDuration() {
+	//customized method for @ElementCollectoin
+	public Set<long> getDuration(){
+		return duration;
+	}
+	public void setDuration(Set<long> duration){
+		this.duration = duration;
+	}
+	
+/*	public long getDuration() {
 		return duration;
 	}
 
 	public void setDuration(long duration) {
 		this.duration = duration;
-	}
+	} */
 
 	public long getId() {
 		return id;
@@ -73,7 +89,18 @@ public class Video {
 	}
 	
 	public void setLikes(long likes) {
+		likes = 0;
 		this.likes = likes;
+	}
+	
+	@ElementCollection private Set likesUsernames = new HashSet(); 
+
+	public Set<String> getLikesUsernames() {
+	  return likesUsernames;
+	 }
+
+	public void setLikesUsernames(Set<String> likesUsernames) {
+	  this.likesUsernames = likesUsernames;
 	}
 	
 	/**

@@ -22,6 +22,7 @@ public class Video {
 
 	private String name;
 	private String url;
+	
 	private long duration;
 
 	public Video() {

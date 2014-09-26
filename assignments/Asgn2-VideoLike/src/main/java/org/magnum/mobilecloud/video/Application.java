@@ -26,11 +26,19 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 // Tell Spring that this object represents a Configuration for the
 // application
 @Configuration
+//Tell Spring to automatically create a JPA implementation of our
+//VideoRepository
+@EnableJpaRepositories(basePackageClasses = VideoRepository.class)
 // Tell Spring to go and scan our controller package (and all sub packages) to
 // find any Controllers or other components that are part of our applciation.
 // Any class in this package that is annotated with @Controller is going to be
 // automatically discovered and connected to the DispatcherServlet.
 @ComponentScan
+//We use the @Import annotation to include our OAuth2SecurityConfiguration
+//as part of this configuration so that we can have security and oauth
+//setup by Spring
+@Import(OAuth2SecurityConfiguration.class)
+
 public class Application extends RepositoryRestMvcConfiguration {
 
 	// The app now requires that you pass the location of the keystore and
@@ -76,7 +84,7 @@ public class Application extends RepositoryRestMvcConfiguration {
 	//
 	//       http://tomcat.apache.org/tomcat-7.0-doc/ssl-howto.html
 	//
-    @Bean
+  /*  @Bean
     EmbeddedServletContainerCustomizer containerCustomizer(
             @Value("${keystore.file:src/main/resources/private/keystore}") String keystoreFile,
             @Value("${keystore.pass:changeit}") final String keystorePass) throws Exception {
@@ -111,6 +119,6 @@ public class Application extends RepositoryRestMvcConfiguration {
 		    
 			}
         };
-    }
+    } */
 	
 }
