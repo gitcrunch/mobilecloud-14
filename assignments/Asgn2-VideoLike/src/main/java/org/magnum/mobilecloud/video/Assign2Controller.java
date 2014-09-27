@@ -18,18 +18,32 @@
 
 package org.magnum.mobilecloud.video;
 
+import java.util.Collection;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.magnum.mobilecloud.video.client.VideoSvcApi;
+import org.magnum.mobilecloud.video.repository.Video;
+import org.magnum.mobilecloud.video.repository.VideoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.google.common.collect.Lists;
+
 @Controller
-public class AnEmptyController {
+public class Assign2Controller {
 	
 	/**
 	 * You will need to create one or more Spring controllers to fulfill the
 	 * requirements of the assignment. If you use this file, please rename it
 	 * to something other than "AnEmptyController"
+	 * 
 	 * 
 	 * 
 		 ________  ________  ________  ________          ___       ___  ___  ________  ___  __       
@@ -42,6 +56,7 @@ public class AnEmptyController {
                                                                                                                                                                                                                                                                         
 	 * 
 	 */
+		
 	@Autowired
 	private VideoRepository videos;
 
@@ -59,7 +74,7 @@ public class AnEmptyController {
 	// interface. We use this constant to ensure that the 
 	// client and service paths for the VideoSvc are always
 	// in synch.
-	//1 GET /video (getVideoList controller method)
+	//1 POST /video (addVideo controller method)
 	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.POST)
 	public @ResponseBody boolean addVideo(@RequestBody Video v){
 		 videos.save(v);
@@ -78,13 +93,15 @@ public class AnEmptyController {
 	
 	//3   GET /video/{id} (getVideoById controller method)
 	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.GET)
-	public @ResponseBody Video getVideoById(@PathVariable("id") long id, HttpServletResponse response) throws IOException{
-		if(!videos.findOne(id))
+	public @ResponseBody Video getVideoById(@PathVariable("id") long id, HttpServletResponse response){
+		Video v= null;
+		if(videos.findOne(id)==null)
 		{
 			response.setStatus(404);
 		} else {
-			return videos.findOne(id);
+		v = videos.findOne(id);
 		}
+		return v;
 	}
 	
 	//4  GET /video/search/findByName?title={title} (findByTitle controller method)
@@ -92,41 +109,34 @@ public class AnEmptyController {
 	public @ResponseBody Collection<Video> findByTitle(
 			// Tell Spring to use the "title" parameter in the HTTP request's query
 			// string as the value for the title method parameter
-			@RequestParam(TITLE_PARAMETER) String title
+			@RequestParam(VideoSvcApi.TITLE_PARAMETER) String title, HttpServletResponse response
 	){
-		if (!videos.findByName(title)){
+		Collection<Video> v = null;
+		if (videos.findByName(title) == null){
 			response.setStatus(404);
 		} else {
-		return videos.findByName(title);
+		v = videos.findByName(title);
 	
 		}
+		return v;
 	}
 	
 	//5  GET /video/search/findByDurationLessThan?duration={duration} (findByDurationLessThan controller method)
 	
-	@RequestMapping(value=VideoSvc.VIDEO_DURATION_SEARCH_PATH, method=RequestMethod.GET)
-	public Collection<Video> findByDurationLessThan(@Query(DURATION_PARAMETER) long duration);
-	
-	
-	
-	//6.      POST /video/{id}/like (likeVideo controller method)
-	
-	
-	
-	
-	//7 POST /video/{id}/unlike (unlikeVideo controller method)
-	
-	
-	
-	
-	
-	//8 GET /video/{id}/likedby (getUsersWhoLikedVideo controller method)
-	
-	
-	
-	@RequestMapping(value="/go",method=RequestMethod.GET)
-	public @ResponseBody String goodLuck(){
-		return "Good Luck!";
+	@RequestMapping(value=VideoSvcApi.VIDEO_DURATION_SEARCH_PATH, method=RequestMethod.GET)
+	public @ResponseBody Collection<Video> findByDurationLessThan(@RequestParam(VideoSvcApi.DURATION_PARAMETER) long duration, HttpServletResponse response) {
+		
+		Collection<Video> v = null;
+		if (videos.findByDurationLessThan(duration)==null){
+			response.setStatus(404);
+		} else {
+			v = videos.findByDurationLessThan(duration);
+		}
+		
+		return v;
 	}
+
+	
+
 	
 }
