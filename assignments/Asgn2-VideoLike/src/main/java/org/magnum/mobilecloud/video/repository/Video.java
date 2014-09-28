@@ -35,9 +35,7 @@ public class Video {
 	private String name;
 	private String url;
 	private long duration;
-	
-	private long likes=0;
-	//private long unLikes;
+	private long likes;
 	
 	public Video() {
 	}
@@ -48,7 +46,7 @@ public class Video {
 		this.url = url;
 		this.duration = duration;
 		this.likes = likes;
-		//this.unLikes = unLikes;
+
 	}
 
 	public String getName() {
@@ -75,14 +73,6 @@ public class Video {
 		this.duration = duration;
 	}
 	
-/*	public long getDuration() {
-		return duration;
-	}
-
-	public void setDuration(long duration) {
-		this.duration = duration;
-	} */
-
 	public long getId() {
 		return id;
 	}
@@ -98,15 +88,7 @@ public class Video {
 	public void setLikes(long likes) {
 		this.likes = likes;
 	}
-	
-//	public long getUnLikes() {
-//		return unLikes;
-//	}
-	
-//	public void setUnLikes(long unLikes) {
-//		unLikes = 0;
-//		this.unLikes = unLikes;
-//	}
+
 	
 	@ElementCollection private Set<String> likesUsernames = new HashSet<String>(); 
 

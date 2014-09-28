@@ -26,13 +26,10 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.magnum.mobilecloud.video.auth.User;
 import org.magnum.mobilecloud.video.client.VideoSvcApi;
 import org.magnum.mobilecloud.video.repository.Video;
 import org.magnum.mobilecloud.video.repository.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -145,20 +142,22 @@ public class Assign2Controller {
 	}
 
 	//6.      POST /video/{id}/like (likeVideo controller method)
-	@PreAuthorize("hasRole(USER)")
+	//@PreAuthorize("hasRole(USER)")
 	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH+"/{id}/like", method=RequestMethod.POST)
-	public @ResponseBody void setLikeVideo(@PathVariable("Id") long id, Principal p, HttpServletResponse response) throws IOException{
+	public @ResponseBody void likeVideo(@PathVariable("id") long id, Principal p, HttpServletResponse response) throws IOException{
+		System.out.println("This is like again "+ p.getName());
 	Video v =null; 
 	if (!videos.exists(id)){
-		 response.setStatus(404);
+		 response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 	 }
 	else {
 	 v = videos.findOne(id);
 	 Set<String> likesUserNames = v.getLikesUsernames();
+	// System.out.println("This is like again"+ p.getName());
 	 if (likesUserNames.contains(p.getName())){
-		 System.out.println("This is like again"+ p.getName());
-		// response.setStatus(400);
-		 new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+		 
+		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+		 //new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
 	 } else {
 	
 
@@ -174,15 +173,16 @@ public class Assign2Controller {
 	  
 	  
 	//7.      POST /video/{id}/unlike (unlikeVideo controller method)
-	@PreAuthorize("hasRole(USER)")
+	//@PreAuthorize("hasRole(USER)")
 	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH+"/{id}/unlike", method=RequestMethod.POST)
-	public @ResponseBody void setUnLikeVideo(@PathVariable("Id") long id, Principal p, HttpServletResponse response ){
+	public @ResponseBody void unlikeVideo(@PathVariable("id") long id, Principal p, HttpServletResponse response) throws IOException {
 		 if (!videos.exists(id)){
 			 response.setStatus(404);
 		 }
+		 else {
 		 Video v = videos.findOne(id);
 		 Set<String> likesUserNames = v.getLikesUsernames();
-		 if (likesUserNames.contains(p)){
+		 if (likesUserNames.contains(p.getName())){
 			 likesUserNames.remove(p.getName());
 			 v.setLikes(likesUserNames.size());
 			 videos.save(v);
@@ -190,18 +190,26 @@ public class Assign2Controller {
 		 } else {
 			 response.setStatus(400);
 		 }
-		 
+	 } 
 	}
 	
 	//8.      GET /video/{id}/likedby (getUsersWhoLikedVideo controller method)
-	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH+"/{id}/likeby", method=RequestMethod.GET)
-	public @ResponseBody Iterator<String> getLikeBy(@PathVariable("Id") long id,HttpServletResponse response){
-		 if (!videos.exists(id)){
-			 response.setStatus(404);
+	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH+"/{id}/likedby", method=RequestMethod.GET)
+	public @ResponseBody Collection<String> getUsersWhoLikedVideo(@PathVariable("id") long id,Principal p, HttpServletResponse response) throws IOException{
+		Set<String> likesUserNames = null;
+		if (!videos.exists(id)){
+			response.setStatus(404);
 		 }
+		else {
 		 Video v = videos.findOne(id);
-		 Set<String> likesUserNames = v.getLikesUsernames();
-		 Iterator<String> u = likesUserNames.iterator(); 
-		return u;
+		 if (v.getLikesUsernames().isEmpty()){
+			 response.setStatus(400);
+		 } else {
+		 likesUserNames = v.getLikesUsernames();
+			
+		 //Collection<String> u = (Collection<String>) likesUserNames.iterator(); 
+		}
+		}
+		return likesUserNames;
 	}
 }
