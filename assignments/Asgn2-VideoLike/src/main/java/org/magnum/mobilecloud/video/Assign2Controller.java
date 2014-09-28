@@ -18,14 +18,22 @@
 
 package org.magnum.mobilecloud.video;
 
+import java.io.IOException;
+import java.security.Principal;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.magnum.mobilecloud.video.auth.User;
 import org.magnum.mobilecloud.video.client.VideoSvcApi;
 import org.magnum.mobilecloud.video.repository.Video;
 import org.magnum.mobilecloud.video.repository.VideoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -76,9 +84,9 @@ public class Assign2Controller {
 	// in synch.
 	//1 POST /video (addVideo controller method)
 	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.POST)
-	public @ResponseBody boolean addVideo(@RequestBody Video v){
-		 videos.save(v);
-		 return true;
+	public @ResponseBody Video addVideo(@RequestBody Video v){
+		 
+		 return videos.save(v);
 	}
 	
 	// Receives GET requests to /video and returns the current
@@ -92,7 +100,7 @@ public class Assign2Controller {
 	}
 	
 	//3   GET /video/{id} (getVideoById controller method)
-	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH, method=RequestMethod.GET)
+	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH+"/{id}", method=RequestMethod.GET)
 	public @ResponseBody Video getVideoById(@PathVariable("id") long id, HttpServletResponse response){
 		Video v= null;
 		if(videos.findOne(id)==null)
@@ -136,7 +144,64 @@ public class Assign2Controller {
 		return v;
 	}
 
+	//6.      POST /video/{id}/like (likeVideo controller method)
+	@PreAuthorize("hasRole(USER)")
+	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH+"/{id}/like", method=RequestMethod.POST)
+	public @ResponseBody void setLikeVideo(@PathVariable("Id") long id, Principal p, HttpServletResponse response) throws IOException{
+	Video v =null; 
+	if (!videos.exists(id)){
+		 response.setStatus(404);
+	 }
+	else {
+	 v = videos.findOne(id);
+	 Set<String> likesUserNames = v.getLikesUsernames();
+	 if (likesUserNames.contains(p.getName())){
+		 System.out.println("This is like again"+ p.getName());
+		// response.setStatus(400);
+		 new ResponseEntity<Void>(HttpStatus.BAD_REQUEST);
+	 } else {
 	
 
+			// keep track of users have liked a video
+			  likesUserNames.add(p.getName());
+			  v.setLikesUsernames(likesUserNames);
+			  v.setLikes(likesUserNames.size());
+			  videos.save(v);
+			  response.setStatus(200);
+	 		}
+		}
+	}  
+	  
+	  
+	//7.      POST /video/{id}/unlike (unlikeVideo controller method)
+	@PreAuthorize("hasRole(USER)")
+	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH+"/{id}/unlike", method=RequestMethod.POST)
+	public @ResponseBody void setUnLikeVideo(@PathVariable("Id") long id, Principal p, HttpServletResponse response ){
+		 if (!videos.exists(id)){
+			 response.setStatus(404);
+		 }
+		 Video v = videos.findOne(id);
+		 Set<String> likesUserNames = v.getLikesUsernames();
+		 if (likesUserNames.contains(p)){
+			 likesUserNames.remove(p.getName());
+			 v.setLikes(likesUserNames.size());
+			 videos.save(v);
+			 response.setStatus(200);
+		 } else {
+			 response.setStatus(400);
+		 }
+		 
+	}
 	
+	//8.      GET /video/{id}/likedby (getUsersWhoLikedVideo controller method)
+	@RequestMapping(value=VideoSvcApi.VIDEO_SVC_PATH+"/{id}/likeby", method=RequestMethod.GET)
+	public @ResponseBody Iterator<String> getLikeBy(@PathVariable("Id") long id,HttpServletResponse response){
+		 if (!videos.exists(id)){
+			 response.setStatus(404);
+		 }
+		 Video v = videos.findOne(id);
+		 Set<String> likesUserNames = v.getLikesUsernames();
+		 Iterator<String> u = likesUserNames.iterator(); 
+		return u;
+	}
 }

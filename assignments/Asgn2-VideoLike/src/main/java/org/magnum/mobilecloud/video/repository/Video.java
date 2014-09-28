@@ -36,7 +36,8 @@ public class Video {
 	private String url;
 	private long duration;
 	
-	private long likes;
+	private long likes=0;
+	//private long unLikes;
 	
 	public Video() {
 	}
@@ -47,6 +48,7 @@ public class Video {
 		this.url = url;
 		this.duration = duration;
 		this.likes = likes;
+		//this.unLikes = unLikes;
 	}
 
 	public String getName() {
@@ -94,9 +96,17 @@ public class Video {
 	}
 	
 	public void setLikes(long likes) {
-		likes = 0;
 		this.likes = likes;
 	}
+	
+//	public long getUnLikes() {
+//		return unLikes;
+//	}
+	
+//	public void setUnLikes(long unLikes) {
+//		unLikes = 0;
+//		this.unLikes = unLikes;
+//	}
 	
 	@ElementCollection private Set<String> likesUsernames = new HashSet<String>(); 
 
@@ -107,6 +117,14 @@ public class Video {
 	public void setLikesUsernames(Set<String> likesUsernames) {
 	  this.likesUsernames = likesUsernames;
 	}
+	
+//	@ElementCollection private Set<String> unLikesUsernames = new HashSet<String>();
+//	public Set<String> getUnLikesUsernames() {
+//		  return unLikesUsernames;
+//		 }
+//	public void setUnLikesUsernames(Set<String> unLikesUsernames) {
+//		  this.unLikesUsernames = unLikesUsernames;
+//	}
 	
 	/**
 	 * Two Videos will generate the same hashcode if they have exactly the same
